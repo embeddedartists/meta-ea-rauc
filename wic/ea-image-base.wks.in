@@ -1,0 +1,15 @@
+# short-description: Create a disk image for EA modules
+# long-description:
+# Create a partitioned image suitable for A/B updates. Separate partitions for 
+# boot files (kernel and device tree files) and rootfs. There is also a 
+# separate partition of persistant data that won't be changed during an
+# OTA update.
+#
+part u-boot --source rawcopy --sourceparams="file=imx-boot" --ondisk mmcblk --no-table --align ${IMX_BOOT_SEEK}
+part --source bootimg-partition --ondisk mmcblk --fstype=vfat --label boot0 --active --align 4096 --size 64
+part --source bootimg-partition --ondisk mmcblk --fstype=vfat --label boot1 --active --size 64
+part / --source rootfs --ondisk mmcblk --fstype=ext4 --label rootfs_A
+part / --source rootfs --ondisk mmcblk --fstype=ext4 --label rootfs_B
+part /data --ondisk mmcblk --fstype=ext4 --label data --size 500M
+
+bootloader --ptable gpt
